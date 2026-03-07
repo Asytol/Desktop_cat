@@ -56,6 +56,10 @@ def Hard_create_window_get_hwnd(directory):
         else:
             hwnd = line.strip()
 
+def Check_AABB(obj_points,point):
+    #X axis
+    if obj_points[0][0] < point[0] < obj_points[1][0] and obj_points[0][1] < point[1] < obj_points[2][1]:
+        return True
 
 def Lock_cursor_func(Current_pos_lock):
     pyautogui.moveTo(Current_pos_lock,_pause=False)

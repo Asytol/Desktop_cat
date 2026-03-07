@@ -1,16 +1,62 @@
 #imports
 from random import randint, choice,choices
 from pyautogui import position,move,size,write
-from pygame import image,display
+from pygame import image,display,Surface,transform,SRCALPHA
 from os import open,path
 from win32gui import MoveWindow, GetWindowRect
+from math import sin
 
 #My own imports (:
 from Logic_handler import delta_time,Get_delta_time
 import Logic_handler
 
 Cat_list = []
+Sleeping_Z_list = []
 
+class Sleeping_Z_class:
+    def __init__(self,x,y,surface,catx,caty):
+        self.size = 0.1
+        self.Depreciation_time = 0.05
+        self.Image = transform.scale_by(Cat.Sleeping_Z,0.1)
+        self.Surface = surface
+
+        self.catx = catx
+        self.caty = caty
+
+        self.x = x
+        self.x_relation = 0
+        self.start_x = x
+
+        self.y = y
+        self.y_relation = 0
+
+        self.Hitbox = ((self.x + catx,self.y + caty),
+                       (self.x + self.Image.get_width() + catx,self.y + caty),
+                       (self.x + catx,self.y + self.Image.get_height() + caty),
+                       (self.x + self.Image.get_width() + catx, self.y + self.Image.get_height() + caty))
+        Sleeping_Z_list.append(self)
+    def Update_self(self):
+        dist = 20 * Get_delta_time()
+        self.y -= dist
+        self.y_relation -= dist / 20
+
+        self.x += sin(self.y_relation) * 5
+        self.Surface.blit(self.Image,(self.x,self.y))
+
+
+        print(f"Sleeping_Z: {self.x,self.y}")
+        if self.size < 1:
+            self.Image = transform.scale_by(Cat.Sleeping_Z, 0.1 + self.size)
+            self.size += self.Depreciation_time * Get_delta_time()
+            self.Hitbox = ((self.x + self.catx,self.y),
+                       (self.x + self.Image.get_width() + self.catx,self.y),
+                       (self.x + self.catx,self.y + self.Image.get_height()),
+                       (self.x + self.Image.get_width() + self.catx, self.y + self.Image.get_height()))
+        else:
+            print("removing Z")
+            Sleeping_Z_list.remove(self)
+            del self
+        
 
 
 class Cat:
@@ -29,9 +75,10 @@ class Cat:
     walk_current_stop_time = 0
 
     Sleep_time = 30
+    Sleep_Z_interwals = 4
 
     Keys = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9','a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z','backspace','ctrlleft','ctrlright','decimal','\n']
-    Amount_of_presses = 1000
+    Amount_of_presses = 300
     def Load_pics():    
         Cat.Cat_laying = image.load("Pictures/Laying_cat.png").convert_alpha()
         Cat.Cat_jumping = image.load("Pictures/Cat_jumping.png").convert_alpha()
@@ -40,6 +87,7 @@ class Cat:
         Cat.Cat_walking = image.load("Pictures/Cat_walking.png").convert_alpha()
         Cat.Cat_keyboard = image.load("Pictures/Cat_keyboard.png").convert_alpha()
         Cat.Cat_ready = image.load("Pictures/Cat_ready.png").convert_alpha()
+        Cat.Sleeping_Z = image.load("Pictures/Sleeping_Z.png").convert_alpha()
 
     def __init__(self,current_pic,x,y):
         self.current_pic = current_pic
@@ -92,10 +140,18 @@ class Cat:
         self.current_walk_time = 0
         self.walk_stop = False
         #Sleeping logic
+        self.Started_sleeping = False
+        self.Current_Z_spawntimer = 0
         self.Current_sleep_time = 0 
+
 
         #Button_mash_keyboard logic
         self.Current_press_amount = 0
+
+        #Personal Surface
+        self.Personal_surface = Surface((300,Cat.Screen_size[1]),SRCALPHA)
+        self.Personal_surface.blit(Cat.Sleeping_Z,(0,1000))
+
 
         Cat_list.append(self)
 
@@ -267,10 +323,20 @@ class Cat:
 
     #(ᴗ˳ᴗ)ᶻ𝗓𐰁 -
     def Sleep(self):
-        self.current_pic = Cat.Cat_laying
+        if self.Current_Z_spawntimer > Cat.Sleep_Z_interwals:
+            print("Creating Z")
+            Sleeping_Z_class(self.Personal_surface.get_width()/2,self.y - 50,self.Personal_surface,self.x,self.y)
+            self.Current_Z_spawntimer = 0
+        else:
+            self.Current_Z_spawntimer += Get_delta_time()
+        
+        #Sleep
+        if self.Started_sleeping == False:
+            self.current_pic = Cat.Cat_laying
         if self.Current_sleep_time > Cat.Sleep_time:
             self.Current_sleep_time = 0
             self.func = self.nothing
+            Sleeping_Z_list
         else:
             self.Current_sleep_time += Get_delta_time()
     # ₊✩‧₊ 
@@ -299,9 +365,12 @@ class Cat:
             if self.current_action_timer > self.Current_action_time:
                 self.current_action_timer = 0
                 self.Current_action_time = Cat.Action_time + randint(Cat.Random_Action_Interval[0],Cat.Random_Action_Interval[1])
-                self.func = choice([self.Attack_cursor,self.Drag_in_window,self.Move_around,self.Sleep,self.Button_mash_keyboard])
+                self.func = choice([self.Attack_cursor,self.Drag_in_window,self.Move_around,self.Sleep,self.Button_mash_keyboard,self.Sleep])
                 print(f"tried performing:{self.func}")
         
+        self.Personal_surface.fill(SRCALPHA)
+        for Obj_Z in Sleeping_Z_list:
+            Obj_Z.Update_self()
         self.func()
         # -_-  (:<
         self.xvelocity = self.xvelocity_to_set 

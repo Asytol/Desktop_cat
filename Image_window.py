@@ -5,7 +5,8 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = 'hide'
 from pygame import display,image
 from sys import stdout
 from random import choice
-from win32gui import MoveWindow
+from win32gui import MoveWindow,SetWindowPos
+from win32con import HWND_TOPMOST,SWP_NOMOVE,SWP_NOSIZE
 #-_-
 image_name = choice(listdir(r"Pictures\Window_pictures"))
 image_directory = rf"Pictures\Window_pictures\{image_name}"
@@ -25,6 +26,7 @@ from pygame import event,KEYDOWN,K_ESCAPE,quit,QUIT
 
 running = True
 while running == True:
+    SetWindowPos(hwnd, HWND_TOPMOST, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE)
     screen.blit(Session_image,(0,0))
     for ev in event.get():
         if ev.type == QUIT:

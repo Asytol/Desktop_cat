@@ -37,14 +37,18 @@ win32gui.SetWindowLong(hwnd, win32con.GWL_EXSTYLE,
 win32gui.SetLayeredWindowAttributes(hwnd, win32api.RGB(*transparent), 0, win32con.LWA_COLORKEY)
 #  O_O
 
-Test_cat = Cat_class.Cat(Cat_laying,100, (screen.get_height() - Cat_laying.get_height()/2))
-Test_cat2 = Cat_class.Cat(Cat_laying,200, (screen.get_height() - Cat_laying.get_height()/2))
-Test_cat3 = Cat_class.Cat(Cat_laying,300, (screen.get_height() - Cat_laying.get_height()/2))
+Test_cat = Cat_class.Cat(Cat_laying,400, (screen.get_height() - Cat_laying.get_height()/2))
+
 
 # ---  :J  ---
 def Draw_text(text,font,text_col,x,y):
     img = font.render(text,True,text_col)
     screen.blit(img,(x,y))
+
+def Debug_draw_rect(x,y,width,height):
+    pygame.draw.rect(screen,(255,0,0),(x,y,width,height))
+def Debug_draw_circle(x,y,radius):
+    pygame.draw.circle(screen,(225,0,0),(x,y),radius)
 
 def Blit_objects(Objects):
     for object in Objects:
@@ -58,8 +62,9 @@ CurserPos = 0,0
 while Running:
     win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0,0,0,0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
     CurserPos = pyautogui.position()
-    print(CurserPos)
+    #print(CurserPos)
     screen.fill(transparent)
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             Running = False
@@ -79,7 +84,11 @@ while Running:
 
     for cat in Cat_class.Cat_list:
         cat.Obj_logic()
-    
+        screen.blit(cat.Personal_surface,(cat.x - cat.current_pic.get_width()/2,cat.y - cat.Personal_surface.get_height()+100))
+    for z in Cat_class.Sleeping_Z_list:
+        for point in z.Hitbox:
+            Debug_draw_circle(point[0],point[1],3)
+
 
     # --__--
     Frame_logic_handler.Frame_logic()

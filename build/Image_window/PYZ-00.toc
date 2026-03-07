@@ -1,5 +1,4 @@
-('C:\\Users\\25adoh\\desktop\\vs '
- 'code\\skola\\pygame\\punjabifreenovirus\\gambling_game\\cat_virus\\build\\Image_window\\PYZ-00.pyz',
+('C:\\Users\\25adoh\\Desktop\\Desktop_cat\\Desktop_cat\\build\\Image_window\\PYZ-00.pyz',
  [('__future__',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\\Lib\\__future__.py',
@@ -2086,6 +2085,9 @@
   ('webbrowser',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\\Lib\\webbrowser.py',
+   'PYMODULE'),
+  ('win32con',
+   'C:\\Users\\25adoh\\AppData\\Local\\Packages\\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\\LocalCache\\local-packages\\Python313\\site-packages\\win32\\lib\\win32con.py',
    'PYMODULE'),
   ('xml',
    'C:\\Program '
