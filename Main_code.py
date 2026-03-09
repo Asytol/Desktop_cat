@@ -11,6 +11,7 @@ pygame.init()
 import Cat_class
 from Logic_handler import Frame_logic_handler
 import subprocess
+from keyboard import is_pressed
 
 #Standard Pygame Stuffy stuff, idk what to call it dawg
 clock = pygame.time.Clock()
@@ -26,6 +27,7 @@ Cat_laying = pygame.image.load("Pictures/Laying_cat.png").convert_alpha()
 
 transparent = (255, 0, 128)
 Arial_font = pygame.font.SysFont("Arial",30)
+
 LastPos = pyautogui.position()
 pyautogui.click(100,200)
 pyautogui.moveTo(LastPos)
@@ -74,7 +76,6 @@ while Running:
             if event.key == pygame.K_ESCAPE:
                 Running = False
             # ((((:
-    
     Draw_text("Testing",Arial_font,(0,0,0),0,0)
     #print(Test_cat.x,Test_cat.y)
 
@@ -85,9 +86,6 @@ while Running:
     for cat in Cat_class.Cat_list:
         cat.Obj_logic()
         screen.blit(cat.Personal_surface,(cat.x - cat.current_pic.get_width()/2,cat.y - cat.Personal_surface.get_height()+100))
-    for z in Cat_class.Sleeping_Z_list:
-        for point in z.Hitbox:
-            Debug_draw_circle(point[0],point[1],3)
 
 
     # --__--

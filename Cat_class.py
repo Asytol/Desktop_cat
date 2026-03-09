@@ -5,6 +5,8 @@ from pygame import image,display,Surface,transform,SRCALPHA
 from os import open,path
 from win32gui import MoveWindow, GetWindowRect
 from math import sin
+from keyboard import is_pressed
+from win32api import GetKeyState
 
 #My own imports (:
 from Logic_handler import delta_time,Get_delta_time
@@ -12,16 +14,17 @@ import Logic_handler
 
 Cat_list = []
 Sleeping_Z_list = []
+Cursor_pos = position()
 
 class Sleeping_Z_class:
     def __init__(self,x,y,surface,catx,caty):
         self.size = 0.1
-        self.Depreciation_time = 0.05
+        self.Growth_amount = 0.05
         self.Image = transform.scale_by(Cat.Sleeping_Z,0.1)
         self.Surface = surface
 
-        self.catx = catx
-        self.caty = caty
+        self.catx = catx - Cat.Cat_laying.get_width()/2
+        self.caty = 100
 
         self.x = x
         self.x_relation = 0
@@ -45,17 +48,17 @@ class Sleeping_Z_class:
 
 
         print(f"Sleeping_Z: {self.x,self.y}")
-        if self.size < 1:
+        if self.size < 2:
             self.Image = transform.scale_by(Cat.Sleeping_Z, 0.1 + self.size)
-            self.size += self.Depreciation_time * Get_delta_time()
-            self.Hitbox = ((self.x + self.catx,self.y),
+            self.size += self.Growth_amount * Get_delta_time()
+        self.Hitbox = ((self.x + self.catx,self.y),
                        (self.x + self.Image.get_width() + self.catx,self.y),
                        (self.x + self.catx,self.y + self.Image.get_height()),
                        (self.x + self.Image.get_width() + self.catx, self.y + self.Image.get_height()))
-        else:
-            print("removing Z")
+        if self.y < 0:
             Sleeping_Z_list.remove(self)
             del self
+            return 
         
 
 
@@ -355,6 +358,7 @@ class Cat:
         pass
 
     def Obj_logic(self):
+        global Cursor_pos
         self.xvelocity_to_set = 0
         self.yvelocity_to_set = 0
 
@@ -366,16 +370,26 @@ class Cat:
                 self.current_action_timer = 0
                 self.Current_action_time = Cat.Action_time + randint(Cat.Random_Action_Interval[0],Cat.Random_Action_Interval[1])
                 self.func = choice([self.Attack_cursor,self.Drag_in_window,self.Move_around,self.Sleep,self.Button_mash_keyboard,self.Sleep])
+                # functions for debug
+                #self.func = choice([self.Sleep])
                 print(f"tried performing:{self.func}")
         
         self.Personal_surface.fill(SRCALPHA)
         for Obj_Z in Sleeping_Z_list:
             Obj_Z.Update_self()
+        if Logic_handler.Left_click_down == True:
+            for obj_Z in Sleeping_Z_list:
+                if Logic_handler.Check_AABB(obj_Z.Hitbox,Cursor_pos) == True:
+                    Sleeping_Z_list.remove(obj_Z)
+                    del obj_Z
+        
+
         self.func()
         # -_-  (:<
         self.xvelocity = self.xvelocity_to_set 
         #print(f"self.xvelocity = {self.xvelocity}")
         self.yvelocity = self.yvelocity_to_set 
+        Cursor_pos = Logic_handler.Get_cursor_pos()
         
         
         

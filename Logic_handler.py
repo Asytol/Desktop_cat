@@ -5,19 +5,28 @@ from os import startfile,environ
 import subprocess
 from win32gui import MoveWindow
 import threading
+import win32api
 #ehmmmm, idk if this is a good thing to do but... ehh... Fail-safe off?
 pyautogui.FAILSAFE = False
 
 clock = time.Clock()
 delta_time = 0.1
 
+Last_click_state = 1
+
+Cursor_pos = pyautogui.position()
+
+Left_click_down = False
 class Frame_logic_handler:
     Lock_cursor = False
     Locked_cursor = False
     Lock_position = 0,0
 
     def Frame_logic():
+        global Left_click_down
         Set_delta_time()
+        Set_cursor_pos()
+        Left_click_down = Check_left_click()
 
         if Frame_logic_handler.Lock_cursor == True:
             if Frame_logic_handler.Locked_cursor == False:
@@ -28,6 +37,16 @@ class Frame_logic_handler:
         else:
             Frame_logic_handler.Locked_cursor = False
 
+#Fix later
+def Check_left_click():
+    global Last_click_state
+    state = win32api.GetKeyState(0x01)
+    if state != Last_click_state:
+        Last_click_state = state
+        return True
+    else:
+        return False
+    
 def Caculate_parabola_2p(x1,y1,x2,y2):
     #substitutions formeln
     yn1 = y1 * x2
@@ -70,6 +89,13 @@ def Set_delta_time():
 
 def Get_delta_time():
     return delta_time
+
+def Set_cursor_pos():
+    global Cursor_pos
+    Cursor_pos = pyautogui.position()
+
+def Get_cursor_pos():
+    return Cursor_pos
 
 class Window_creator:
     def __init__(self): 
