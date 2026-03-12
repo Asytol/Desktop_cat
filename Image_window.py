@@ -26,7 +26,6 @@ from pygame import event,KEYDOWN,K_ESCAPE,quit,QUIT
 
 running = True
 while running == True:
-    SetWindowPos(hwnd, HWND_TOPMOST, 0,0,0,0, SWP_NOMOVE | SWP_NOSIZE)
     screen.blit(Session_image,(0,0))
     for ev in event.get():
         if ev.type == QUIT:

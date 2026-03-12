@@ -85,7 +85,7 @@ while Running:
 
     for cat in Cat_class.Cat_list:
         cat.Obj_logic()
-        screen.blit(cat.Personal_surface,(cat.x - cat.current_pic.get_width()/2,cat.y - cat.Personal_surface.get_height()+100))
+        screen.blit(cat.Personal_surface,(cat.Surface_x,cat.Surface_y))
 
 
     # --__--

@@ -15,6 +15,14 @@ import Logic_handler
 Cat_list = []
 Sleeping_Z_list = []
 Cursor_pos = position()
+class Hanging_light:
+    def Load_pics():
+        Hanging_light.Light = image.load("Pictures/Hanging_light.png",).convert_alpha()
+    def __init__(self,surface_width):
+        self.x = surface_width - Hanging_light.Light.get_width()/2
+        self.y = 0
+        self.Rotation = 0
+
 
 class Sleeping_Z_class:
     def __init__(self,x,y,surface,catx,caty):
@@ -45,17 +53,18 @@ class Sleeping_Z_class:
 
         self.x += sin(self.y_relation) * 5
         self.Surface.blit(self.Image,(self.x,self.y))
-
+        Img_width = self.Image.get_width()
+        Img_height = self.Image.get_height()
 
         print(f"Sleeping_Z: {self.x,self.y}")
         if self.size < 2:
             self.Image = transform.scale_by(Cat.Sleeping_Z, 0.1 + self.size)
             self.size += self.Growth_amount * Get_delta_time()
         self.Hitbox = ((self.x + self.catx,self.y),
-                       (self.x + self.Image.get_width() + self.catx,self.y),
-                       (self.x + self.catx,self.y + self.Image.get_height()),
-                       (self.x + self.Image.get_width() + self.catx, self.y + self.Image.get_height()))
-        if self.y < 0:
+                       (self.x + Img_width + self.catx,self.y),
+                       (self.x + self.catx,self.y + Img_height),
+                       (self.x + Img_width + self.catx, self.y + Img_height))
+        if self.y < -Img_width:
             Sleeping_Z_list.remove(self)
             del self
             return 
@@ -77,11 +86,11 @@ class Cat:
     walk_stop_time = 5
     walk_current_stop_time = 0
 
-    Sleep_time = 30
+    Sleep_time = 50
     Sleep_Z_interwals = 4
 
     Keys = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '-', '.', '/', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9','a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z','backspace','ctrlleft','ctrlright','decimal','\n']
-    Amount_of_presses = 300
+    Amount_of_presses = 100
     def Load_pics():    
         Cat.Cat_laying = image.load("Pictures/Laying_cat.png").convert_alpha()
         Cat.Cat_jumping = image.load("Pictures/Cat_jumping.png").convert_alpha()
@@ -96,12 +105,15 @@ class Cat:
         self.current_pic = current_pic
         self.x = x
         self.y = y
+        self.Image_flipped = False
 
         self.xvelocity = 0
         self.yvelocity = 0
         self.xvelocity_to_set = 0
         self.yvelocity_to_set = 0
         self.speed: int = 150
+
+        self.Started_general_action = False
 
         #General action logic
         self.current_action_timer = 0
@@ -152,6 +164,8 @@ class Cat:
         self.Current_press_amount = 0
 
         #Personal Surface
+        self.Surface_x = self.x
+        self.Surface_y = self.y
         self.Personal_surface = Surface((300,Cat.Screen_size[1]),SRCALPHA)
         self.Personal_surface.blit(Cat.Sleeping_Z,(0,1000))
 
@@ -168,15 +182,17 @@ class Cat:
     def Attack_cursor(self):
         if self.Has_parabola == False:
             #-
-            self.current_pic = Cat.Cat_jumping
+            
             self.Current_X_relation = 0
             self.Att_StartX = self.x
             self.Att_StartY = self.y
             Attack_point = position()
             #-
             if self.x < Attack_point[0]:
+                self.Current_pic = Cat.Cat_jumping
                 self.Att_direct = 1
             else:
+                self.current_pic = transform.flip(Cat.Cat_jumping,1,0)
                 self.Att_direct = -1
             if Attack_point[0] == self.x:
                 self.x += 1
@@ -227,8 +243,12 @@ class Cat:
         if self.In_position == False:
             #-
             if self.Picked_win_drag_side == False:
-                self.current_pic = Cat.Cat_walking
                 self.drag_side = choice([1,-1])
+                if self.drag_side == 1:
+                    self.current_pic = Cat.Cat_walking
+                else:
+                    self.current_pic = transform.flip(Cat.Cat_walking,1,0)
+
                 self.Picked_win_drag_side = True
             self.xvelocity_to_set = self.speed * self.drag_side
             if self.x < 0 - Cat.Extra_win_walk_distance or self.x > Cat.Screen_size[0] + Cat.Extra_win_walk_distance:
@@ -295,15 +315,18 @@ class Cat:
                 self.Session_walk_time = Cat.Direction_change_time - randint(Cat.Direction_change_interval[0],Cat.Direction_change_interval[1])
                 self.session_current_time = 0
                 self.walking_direction *= -1
+                self.current_pic = transform.flip(self.current_pic,1,0)
                 self.walk_stop = True
             else:
                 self.session_current_time += Get_delta_time()
             #-
             if self.x < 0 + self.current_pic.get_width()/2:
                 self.walking_direction = 1
+                self.current_pic = Cat.Cat_walking
                 self.x = self.current_pic.get_width()/2
             elif self.x >= Cat.Screen_size[0] - self.current_pic.get_width()/2:
                 self.walking_direction = -1
+                self.current_pic = transform.flip(Cat.Cat_walking,1,0)
                 self.x = Cat.Screen_size[0] - self.current_pic.get_width()/2
             
             self.xvelocity_to_set = self.walk_speed * self.walking_direction
@@ -336,10 +359,13 @@ class Cat:
         #Sleep
         if self.Started_sleeping == False:
             self.current_pic = Cat.Cat_laying
+            self.Surface_x, self.Surface_y = self.x - self.current_pic.get_width()/2, self.y - self.Personal_surface.get_height() + 100
+            self.Started_sleeping = True
+        
         if self.Current_sleep_time > Cat.Sleep_time:
             self.Current_sleep_time = 0
             self.func = self.nothing
-            Sleeping_Z_list
+            self.Started_sleeping = False
         else:
             self.Current_sleep_time += Get_delta_time()
     # ₊✩‧₊ 
@@ -350,9 +376,20 @@ class Cat:
             write(choice(Cat.Keys),_pause=False)
         else:
             self.func = self.nothing
+    # Pluh -_-
+    def Hang_on_light(self):
+
+        if self.Has_parabola == False:
+            self.Surface_x = Cat.Screen_size[0]/2 - self.Personal_surface.get_width()/2
+            self.Surface_y = 0
+            Logic_handler.Caculate_parabola_2p(Cat.Screen_size[0]/2 - self.Extra_distance,
+                                               Hanging_light.Light.get_height() + self.Extra_distance,
+                                               Cat.Screen_size[0]/2,
+                                               Hanging_light.Light.get_height())
+        
             
 
-    # If the player has done something bad, like closing the window while it's being dragged in
+    # Hiss if the player has done something bad, like closing the window while it's being dragged in
     # causing a pywintypes error!!! why would anyone do that!!!
     def Hiss(self):
         pass

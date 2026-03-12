@@ -11,4 +11,6 @@
 
 6. Maybe add blocks?
 
+7. Maybe add some plants on the left or right side which the cat can knock down causing a mess on your screen
+
 7. Ohhhh Right! I should make actually good sprites instead of pngs

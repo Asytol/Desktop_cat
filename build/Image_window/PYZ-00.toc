@@ -1,4 +1,4 @@
-('C:\\Users\\25adoh\\Desktop\\Desktop_cat\\Desktop_cat\\build\\Image_window\\PYZ-00.pyz',
+('C:\\Users\\25adoh\\desktop\\desktop_cat\\desktop_cat\\build\\Image_window\\PYZ-00.pyz',
  [('__future__',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3312.0_x64__qbz5n2kfra8p0\\Lib\\__future__.py',

@@ -19,7 +19,6 @@ running = True
 
 stdout.flush()
 while running == True:
-    win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0,0,0,0, win32con.SWP_NOMOVE | win32con.SWP_NOSIZE)
     Slug = transform.flip(Slug,1,0)
     screen.blit(Slug,(0,0))
     
